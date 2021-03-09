@@ -56,14 +56,14 @@ brapi_get_commoncropnames <- function(con = NULL, page = 0, pageSize = 1000) {
     ## Make the call and receive the response
     resp <- brapi_GET(url = callurl, usedArgs = usedArgs)
     ## Extract the content from the response object in human readable form
-    cont <- httr::content(x = resp, as = "text", encoding = "UTF-8")
+    resp_cont <- httr::content(x = resp, as = "text", encoding = "UTF-8")
     ## Convert the content object into a data.frame
-    out <- brapi_result2df(cont, usedArgs)
+    out <- brapi_result2df(resp_cont, usedArgs)
     colnames(out) <- "Common Crop Names"
   })
   ## Set class of output
   class(out) <- c(class(out), "brapi_get_commoncropnames")
   ## Show pagination information from metadata
-  brapi_serverinfo_metadata(cont)
+  brapi_serverinfo_metadata(resp_cont)
   return(out)
 }

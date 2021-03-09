@@ -43,13 +43,13 @@ brapi_get_lists_listDbId <- function(con = NULL, listDbId = '') {
     ## Make the call and receive the response
     resp <- brapi_GET(url = callurl, usedArgs = usedArgs)
     ## Extract the content from the response object in human readable form
-    cont <- httr::content(x = resp, as = "text", encoding = "UTF-8")
+    resp_cont <- httr::content(x = resp, as = "text", encoding = "UTF-8")
     ## Convert the content object into a data.frame
-    out <- brapi_result2df(cont, usedArgs)
+    out <- brapi_result2df(resp_cont, usedArgs)
   })
   ## Set class of output
   class(out) <- c(class(out), "brapi_get_lists_listDbId")
   ## Show pagination information from metadata
-  brapi_serverinfo_metadata(cont)
+  brapi_serverinfo_metadata(resp_cont)
   return(out)
 }

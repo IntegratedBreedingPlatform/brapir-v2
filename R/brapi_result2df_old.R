@@ -1,7 +1,7 @@
 ### Internal function for parsing the result part of the response content into
 ### a flattened data.frame object
 #' @importFrom utils as.relistable read.csv read.delim
-brapi_result2df_old <- function(cont, usedArgs) {
+brapi_result2df_old <- function(resp_cont, usedArgs) {
   ## Helper functions
   jointDetail <- function(detailDat, colName) {
     detailDatCol <- data.frame(detailDat[[colName]],
@@ -28,24 +28,24 @@ brapi_result2df_old <- function(cont, usedArgs) {
     ## three possibilities "csv", "tsv" and "flapjack"
     switch(usedArgs[["format"]],
            "csv" = {
-             dat <- read.csv(file = textConnection(cont),
+             dat <- read.csv(file = textConnection(resp_cont),
                              stringsAsFactors = FALSE)
              colnames(dat) <- gsub(pattern = "\\.",
                                    replacement = ":",# or "|",
                                    x = colnames(dat))},
            "tsv" = {
-             dat <- read.delim(file = textConnection(cont),
+             dat <- read.delim(file = textConnection(resp_cont),
                                stringsAsFactors = FALSE)
              colnames(dat) <- gsub(pattern = "\\.",
                                    replacement = ":",# or "|",
                                    x = colnames(dat))},
            "flapjack" = {
-             dat <- read.delim(file = textConnection(cont),
+             dat <- read.delim(file = textConnection(resp_cont),
                                stringsAsFactors = FALSE)})
   } else {
     ## Parse JSON content into a list that consists of a metadata and result
     ## element
-    contList <- jsonlite::fromJSON(txt = cont)
+    contList <- jsonlite::fromJSON(txt = resp_cont)
     ## Use only the result element from the content list (contList)
     resultList <- contList[["result"]]
     ## resultList can consist of:
