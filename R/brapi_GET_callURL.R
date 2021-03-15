@@ -1,5 +1,5 @@
 ### Internal function to create a callURL for a GET call
-brapi_GET_callURL <- function(usedArgs, callPath, reqArgs, packageName, callVersion) {
+brapi_GET_callURL <- function(usedArgs, callPath, reqArgs, packageName, callVersion, isCropDbSpecific = F) {
   if (is.null(usedArgs[["con"]])) {return(NULL)}
   ## Preprocess required arguments
   if (grepl(pattern = ", ", x = reqArgs)) {
@@ -21,7 +21,7 @@ brapi_GET_callURL <- function(usedArgs, callPath, reqArgs, packageName, callVers
                          "/",
                          version)
   ## Correction for multicrop databases when call does not require {commoncropname}
-  if (callPath == "/commoncropnames" || callPath == "/calls") {
+  if (isCropDbSpecific) {
     usedArgs[["con"]][["multicrop"]] <- FALSE
   }
   ## Create pointbase callurl:
