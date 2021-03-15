@@ -143,7 +143,12 @@ brapi_checkArgs <- function(usedArgs, reqArgs) {
       }
       ## Check any other argument to be of type character
       if (!is.character(usedArgs[[i]])) {
-        stop('Argument: "', i, '" should be of type character e.g. "text".')
+        if(class(usedArgs[[i]]) %in% c("numeric", "integer")){
+          brapi_message(paste0(i, ' converted as character, returning "', as.character(usedArgs[[i]]), '"\n'))
+          usedArgs[[i]] <- as.character(usedArgs[[i]])
+        }else{
+          stop('Argument: "', i, '" should be of type character e.g. "text".')
+        }
       }
       usedArgs[[i]] <- NULL
     }
