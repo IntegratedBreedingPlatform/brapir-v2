@@ -97,71 +97,73 @@ brapi_result2df <- function(cont, usedArgs) {
              detail <- as.data.frame(x = resultList[["data"]],
                                      stringsAsFactors = FALSE)
            }
-           namesListCols <- names(which(sapply(X = detail,
-                                               FUN = inherits,
-                                               what = "list")))
-           for (colName in namesListCols) {
-             ## list of data.frame
-             if (all(sapply(X = detail[[colName]],
-                            FUN = inherits,
-                            what = "data.frame"))) {
-               ## Determine rows with non-empty data.frames
-               nonEmptyDetailRows <- which(lengths(detail[[colName]]) != 0)
-               ## Create an empty data.frame with columnnames
-               tempColNames <- names(jointDetail(detail[nonEmptyDetailRows[1], ], colName))
-               tempDetail <- data.frame(matrix(ncol = length(tempColNames), nrow = 0))
-               names(tempDetail) <- tempColNames
-               nrows <- nrow(detail)
-               if (nrows >= 1) {
-                 for (i in seq_len(nrows)) {
-                   if (i %in% nonEmptyDetailRows) {
-                     nextRow <- jointDetail(detail[i, ], colName)
-                     if (nrow(tempDetail) == 0) {
-                       tempDetail <- nextRow
-                     } else {
-                       tempDetail <- dplyr::bind_rows(tempDetail, nextRow)
+           if(length(names(detail))>0){
+             namesListCols <- names(which(sapply(X = detail,
+                                                 FUN = inherits,
+                                                 what = "list")))
+             for (colName in namesListCols) {
+               ## list of data.frame
+               if (all(sapply(X = detail[[colName]],
+                              FUN = inherits,
+                              what = "data.frame"))) {
+                 ## Determine rows with non-empty data.frames
+                 nonEmptyDetailRows <- which(lengths(detail[[colName]]) != 0)
+                 ## Create an empty data.frame with columnnames
+                 tempColNames <- names(jointDetail(detail[nonEmptyDetailRows[1], ], colName))
+                 tempDetail <- data.frame(matrix(ncol = length(tempColNames), nrow = 0))
+                 names(tempDetail) <- tempColNames
+                 nrows <- nrow(detail)
+                 if (nrows >= 1) {
+                   for (i in seq_len(nrows)) {
+                     if (i %in% nonEmptyDetailRows) {
+                       nextRow <- jointDetail(detail[i, ], colName)
+                       if (nrow(tempDetail) == 0) {
+                         tempDetail <- nextRow
+                       } else {
+                         tempDetail <- dplyr::bind_rows(tempDetail, nextRow)
+                       }
+                       rm(nextRow)
+                     } else {# i %in% emptyDetailRows
+                       partRowDetail <- detail[i, -c(which(names(detail) == colName))]
+                       extColNames <- setdiff(names(tempDetail), names(partRowDetail))
+                       partRowExt <- data.frame(matrix(data = NA, nrow = 1, ncol = length(extColNames)))
+                       names(partRowExt) <- extColNames
+                       nextRow <- dplyr::bind_cols(partRowDetail, partRowExt)
+                       if (nrow(tempDetail) == 0) {
+                         tempDetail <- nextRow
+                       } else {
+                         tempDetail <- dplyr::bind_rows(tempDetail, nextRow)
+                       }
+                       rm(partRowDetail, partRowExt, extColNames, nextRow)
                      }
-                     rm(nextRow)
-                   } else {# i %in% emptyDetailRows
-                     partRowDetail <- detail[i, -c(which(names(detail) == colName))]
-                     extColNames <- setdiff(names(tempDetail), names(partRowDetail))
-                     partRowExt <- data.frame(matrix(data = NA, nrow = 1, ncol = length(extColNames)))
-                     names(partRowExt) <- extColNames
-                     nextRow <- dplyr::bind_cols(partRowDetail, partRowExt)
-                     if (nrow(tempDetail) == 0) {
-                       tempDetail <- nextRow
-                     } else {
-                       tempDetail <- dplyr::bind_rows(tempDetail, nextRow)
-                     }
-                     rm(partRowDetail, partRowExt, extColNames, nextRow)
                    }
                  }
+                 tempDetail[[colName]] <- NULL
+                 ## Remove duplicated rows
+                 tempDetail <- tempDetail[!duplicated(tempDetail), ]
+                 ## Row renumbering
+                 rownames(tempDetail) <- seq_len(nrow(tempDetail))
                }
-               tempDetail[[colName]] <- NULL
-               ## Remove duplicated rows
-               tempDetail <- tempDetail[!duplicated(tempDetail), ]
-               ## Row renumbering
-               rownames(tempDetail) <- seq_len(nrow(tempDetail))
-             }
-             ## list of character
-             if (all(sapply(X = detail[[colName]],
-                            FUN = inherits,
-                            what = "character"))) {
-               detail[[colName]] <- sapply(X = detail[[colName]],
-                                           FUN = paste,
-                                           collapse = "; ")
-             }
-             ## list of list
-             if (all(sapply(X = detail[[colName]],
-                            FUN = inherits, what = "list"))) {
-               if (all(lengths(detail[[colName]]) == 0)) {
-                 ## list of empty lists
-                 detail[[colName]] <- NULL
+               ## list of character
+               if (all(sapply(X = detail[[colName]],
+                              FUN = inherits,
+                              what = "character"))) {
+                 detail[[colName]] <- sapply(X = detail[[colName]],
+                                             FUN = paste,
+                                             collapse = "; ")
                }
-             }
-             if (exists("tempDetail")) {
-               detail <- tempDetail
-               rm(tempDetail)
+               ## list of list
+               if (all(sapply(X = detail[[colName]],
+                              FUN = inherits, what = "list"))) {
+                 if (all(lengths(detail[[colName]]) == 0)) {
+                   ## list of empty lists
+                   detail[[colName]] <- NULL
+                 }
+               }
+               if (exists("tempDetail")) {
+                 detail <- tempDetail
+                 rm(tempDetail)
+               }
              }
            }
            dat <- detail
