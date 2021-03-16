@@ -27,7 +27,7 @@ brapi_get_studies_studyDbId <- function(con = NULL, studyDbId = "") {
   ## Check if BrAPI server can be reached given the connection details
   brapi_checkCon(con = usedArgs[["con"]], verbose = FALSE)
   ## Check validity of used and required arguments
-  brapi_checkArgs(usedArgs, reqArgs = "")
+  brapi_checkArgs(usedArgs, reqArgs = "studyDbId")
   ## Obtain the call url
   callurl <- brapi_GET_callURL(usedArgs = usedArgs,
                                callPath = "/studies/{studyDbId}",
