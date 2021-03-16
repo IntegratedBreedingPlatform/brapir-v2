@@ -16,7 +16,7 @@
 #'
 #' @return data.frame
 #'
-#' @references \href{https://app.swaggerhub.com/apis/PlantBreedingAPI/BrAPI-Germplasm/2.0#/Germplasm/get_breedingmethods}{BrAPI SwaggerHub}
+#' @references \href{https://app.swaggerhub.com/apis/PlantBreedingAPI/BrAPI-Germplasm/2.0#/Seed%20Lots/get_seedlots}{BrAPI SwaggerHub}
 #'
 #' @family BrAPI-Germplasm
 #' @family Seed Lots
